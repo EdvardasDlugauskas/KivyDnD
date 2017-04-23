@@ -41,7 +41,7 @@ FloatLayout:
             drop_ok_animation_time: 1.5
             drop_func: app.greet
             drop_args: [self]
-            failed_drop_func: app.oops
+            failed_drop_func: self.oops
 
         DraggableButton:
             text: '2. No Remove\\nNo Bounds'
@@ -126,20 +126,18 @@ class dndapp2(App):
         return Builder.load_string(kv)
 
     def greet(self, arg1=None, arg2=None):
-        print "GREETINGS FROM APP!!!"
-        print "Dragging done!!!",
-        print str(arg1), str(arg2)
-        #for destination in arg1.drop_recipients:
-        #    print "TEXT:",destination.text
-        #    self.initial_text = destination.text
-        #    self.flash_widget = destination
-        #    Clock.schedule_interval(self.cycle_message, 0.5)
+        for destination in arg1.drop_recipients:
+            print("The destination's text is:" + destination.text)
+            self.initial_text = destination.text
+            self.flash_widget = destination
+            print("Enjoy your cycle message.")
+            Clock.schedule_interval(self.cycle_message, 0.5)
 
     def cycle_message(self, dt):
-        print "CYCLE!!!!"
+        print(str(self.i+1) + ". I am in a `Clock.schedule_interval` cycle!")
         if self.i < 6:
             if self.toggle_text:
-                self.flash_widget.text = "from app.greet: YAY! DROPPED HERE!"
+                self.flash_widget.text = "from app.greet: Yay! You dropped something here!"
                 self.toggle_text = False
             else:
                 self.flash_widget.text = self.initial_text
@@ -147,14 +145,9 @@ class dndapp2(App):
             self.i += 1
         else:
             Clock.unschedule(self.cycle_message)
-            self.i=0
+            self.i = 0
             self.toggle_text = True
-            # TODO: TEST!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        #print arg1, arg2
-
-    def oops(self):
-        print "Ooops!"
+            # TODO: Add some tests!
 
 if __name__ == '__main__':
     dndapp2().run()
