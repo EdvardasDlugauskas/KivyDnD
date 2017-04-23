@@ -21,7 +21,6 @@ Created on Oct 24, 2012
 @author: Pavel Kostelnik
 '''
 
-
 from DragNDropWidget import DragNDropWidget
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -30,14 +29,8 @@ from kivy.clock import Clock
 
 
 class DraggableButton(Button, DragNDropWidget):
-    '''
-    classdocs
-    '''
     def __init__(self, **kw):
-        '''
-        Constructor
-        '''
-        #Button.__init__(self, **kw)
+        # Button.__init__(self, **kw)
         super(DraggableButton, self).__init__(**kw)
         self.size_hint = (None, None)
 
@@ -45,10 +38,11 @@ class DraggableButton(Button, DragNDropWidget):
         return DraggableButton(text=self.text)
 
     def greet(self, object):
-        print "greetings from DROPBUTTON"
+        print("Greetings from a DraggableButton")
 
     def oops(self):
-        print "OOOPS!!!"
+        print("Ooops! You didn't drop it into any of `droppable_zone_objects`!")
+
 
 class DragDestinationLabel(Label):
     def on_touch_down(self, touch):
@@ -72,11 +66,11 @@ class DragDestinationLabel(Label):
         self.i = 0
         self.toggle_text = True
         self.initial_text = self.text
-        self.dropped_text = "YAY! " + args[0].text + " dropped here!"
+        self.dropped_text = "Yay! `" + args[0].text + "` was dropped here!"
         Clock.schedule_interval(self.cycle_message, 0.3)
 
 
 class DragSourceBoxLayout(BoxLayout):
     def on_touch_down(self, touch):
-        print "BOXLAYOUT GOT TOUCHED!", str(self)
-        super (DragSourceBoxLayout, self).on_touch_down(touch)
+        print("A BoxLayout was touched!" + str(self))
+        super(DragSourceBoxLayout, self).on_touch_down(touch)
