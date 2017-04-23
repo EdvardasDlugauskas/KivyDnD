@@ -17,12 +17,11 @@
 
 # File: DragNDropWidget.py
 #       the drag and drop widget library for Kivy.
+import copy
 from kivy.core.window import Window
 from kivy.animation import Animation
-import copy
 from kivy.uix.widget import Widget
-from kivy.properties import (
-    ListProperty, NumericProperty, BooleanProperty, ObjectProperty)
+from kivy.properties import ListProperty, NumericProperty, BooleanProperty, ObjectProperty
 
 
 class DragNDropWidget(Widget):
@@ -37,7 +36,7 @@ class DragNDropWidget(Widget):
     failed_drop_args = ListProperty([])
     remove_on_drag = BooleanProperty(True)
     drop_ok_animation_time = NumericProperty(0.5)
-    not_drop_ok_animation_time = NumericProperty(0.2)
+    not_drop_ok_animation_time = NumericProperty(0.)
 
     def __init__(self, **kw):
         super(DragNDropWidget, self).__init__(**kw)
@@ -79,8 +78,7 @@ class DragNDropWidget(Widget):
         self.set_bound_axis_positions()
         self._old_drag_pos = self.pos
         self._old_parent = self.parent
-        self._old_parent_children_reversed_list = self.parent.children[:]
-        self._old_parent_children_reversed_list.reverse()
+        self._old_parent_children_reversed_list = reversed(self.parent.children[:])
         if self.copy:
             self._old_index = -1
         else:
@@ -142,37 +140,35 @@ class DragNDropWidget(Widget):
             self.opacity = self._old_opacity
 
 
-    def on_touch_move(the_widget, touch):
-        if the_widget.am_touched:
-            if not the_widget._drag_started:
-                the_widget.dispatch("on_drag_start")
-                the_widget.am_touched = False
+    def on_touch_move(self, touch):
+        if self.am_touched:
+            if not self._drag_started:
+                self.dispatch("on_drag_start")
+                self.am_touched = False
 
-        if not the_widget._drag_started:
+        if not self._drag_started:
             return
-        the_widget._move_counter += 1
-        if the_widget._draggable and the_widget._drag_started:
-            # if the_widget._dragged and the_widget._draggable:
-            the_widget._dragged = True
-            x = touch.x - the_widget.touch_offset_x
-            y = touch.y - the_widget.touch_offset_y
+        self._move_counter += 1
+        if self._draggable and self._drag_started:
+            # if self._dragged and self._draggable:
+            self._dragged = True
+            x = touch.x - self.touch_offset_x
+            y = touch.y - self.touch_offset_y
 
             try:
-                if x <= the_widget.min_x:
-                    x = the_widget.min_x
-                if x > the_widget.max_x:
-                    x = the_widget.max_x
-                if y <= the_widget.min_y:
-                    y = the_widget.min_y
-                if y > the_widget.max_y:
-                    y = the_widget.max_y
+                if x <= self.min_x:
+                    x = self.min_x
+                if x > self.max_x:
+                    x = self.max_x
+                if y <= self.min_y:
+                    y = self.min_y
+                if y > self.max_y:
+                    y = self.max_y
             except AttributeError:
                 pass
-            the_widget.pos = (x, y)
+            self.pos = (x, y)
             # SPECIAL! Takes a herky-jerky GUI and makes it smoooooth....
-            the_widget.canvas.ask_update()
-
-
+            self.canvas.ask_update()
 
     def easy_access_dnd(self, function_to_do, function_to_do_out, arguments = [], bind_functions = []):
         """
@@ -186,7 +182,7 @@ class DragNDropWidget(Widget):
         self.easy_access_dnd_function_arguments = arguments
         self.easy_access_dnd_function_binds = bind_functions
 
-    def on_motion(self, etype, moutionevent):
+    def on_motion(self, etype, motionevent):
         if self.collide_point(Window.mouse_pos[0], Window.mouse_pos[1]):
             if not self._fired_already:
                 self.dispatch("on_motion_over")
@@ -223,11 +219,7 @@ class DragNDropWidget(Widget):
         copy_of_self.touch_offset_x = self.touch_offset_x
         copy_of_self.touch_offset_y = self.touch_offset_y
         copy_of_self.drop_recipients = self.drop_recipients
-        copy_of_self.droppable_zone_objects = self.droppable_zone_objects
         copy_of_self.bound_zone_objects = self.bound_zone_objects
-        copy_of_self.drag_opacity = self.drag_opacity
-        copy_of_self.drop_func = self.drop_func
-        copy_of_self.remove_on_drag = self.remove_on_drag
 
     def on_drag_start(self):
         if self._drag_started:
@@ -262,6 +254,7 @@ class DragNDropWidget(Widget):
         self.opacity = 1.0
         del self.drop_recipients[:]
         if self._dragged and self._draggable:
+
             dropped_ok = False
             for obj in self.droppable_zone_objects:
                 if obj.collide_point(self.touch_x, self.touch_y):
@@ -270,6 +263,7 @@ class DragNDropWidget(Widget):
                         dropped_ok = False
                     else:
                         dropped_ok = True
+
             if dropped_ok:
                 self.drop_func(*self.drop_args)
                 for obj in self.drop_recipients:
@@ -284,9 +278,9 @@ class DragNDropWidget(Widget):
                 anim = Animation(pos=self._old_drag_pos, duration=self.not_drop_ok_animation_time,
                                  t="in_quad")
                 if self.remove_on_drag:
-                    anim.bind(on_complete = self.reborn)
+                    anim.bind(on_complete=self.reborn)
                 else:
-                    anim.bind(on_complete = self.un_root_parent)
+                    anim.bind(on_complete=self.un_root_parent)
                 anim.start(self)
             self._dragged = False
             self.set_drag_finish_state()
@@ -298,6 +292,7 @@ class DragNDropWidget(Widget):
         pass
 
     def reborn(self, widget, anim):
+        '''Move the widget back to its original place.'''
         self.un_root_parent()
         # BUG: We don't just add the reborn child to the parent.
         # Adding child in the first position (the highest index) fails due
@@ -309,7 +304,7 @@ class DragNDropWidget(Widget):
         for childs in self._old_parent_children_reversed_list:
             self._old_parent.add_widget(childs)
         return
-        #As of this moment, this code is unreachable- it's a placeholder.
+        # As of this moment, this code is unreachable - it's a placeholder.
         # See https://github.com/kivy/kivy/issues/4497
         self._old_parent.add_widget(self, index=self._old_index)
 
