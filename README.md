@@ -43,7 +43,7 @@ Import the dragndropwidget.py file.
  
 Create a widget and subclass
 `DragNDropWidget`. Example: place in your python file:
-```PythonStub
+```Python
 from kivydnd.dragndropwidget import DragNDropWidget
 
 class DraggableButton(Button, DragNDropWidget):
@@ -70,13 +70,13 @@ determine which widgets you can drop this DragNDropWidget onto. Here we call the
 `laughing_llamas_are_ludicrous`. As long as the DragNDropWidget and widget(s) to be
 dropped upon have matching id's.
 ```
-    DraggableButton:
-        text: 'Button 1'
-        droppable_zone_objects: [id_of_a_widget]
-        drop_func: app.greet
-        failed_drop_func: app.oops
-        size_hint: None, None
-        size: 100, 100 
+DraggableButton:
+    text: 'Button 1'
+    droppable_zone_objects: [id_of_a_widget]
+    drop_func: app.greet
+    failed_drop_func: app.oops
+    size_hint: None, None
+    size: 100, 100 
 ```
 See the example code below. There are also 4 or 5 examples delivered with the library,
 in increasing complexities. See them for more on how to use the library.
