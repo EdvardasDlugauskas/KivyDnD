@@ -35,7 +35,7 @@ its boundaries, and when it leaves. See the code and examples for more informati
 # Usage
 ## Installation
 Extract the package, and cd into the dragndropwidget directory. Then run:
-`sudo python setup.py`
+`sudo python setup.py install`
 
 ## Importing and Using
 
